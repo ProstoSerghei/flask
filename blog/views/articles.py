@@ -1,4 +1,5 @@
 from flask import Blueprint, render_template
+from flask_login import login_required
 
 from werkzeug.exceptions import NotFound
 
@@ -18,6 +19,7 @@ def articles_list():
 
 
 @articles_app.route('/<article_name>/', endpoint='details')
+@login_required
 def article_details(article_name):
     try:
         article_text = ARTICLES[article_name]
