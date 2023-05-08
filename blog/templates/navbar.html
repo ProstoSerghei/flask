@@ -17,6 +17,10 @@
                     <a class='nav-link' href="{{ url_for('auth_app.logout') }}" >Logout</a>
                 {% else %}
                     <a href="{{ url_for('auth_app.login') }}" class="nav-link {% if request.endpoint == 'login' -%}active{%- endif %}">Login</a>
+                    <a href="{{ url_for('auth_app.register') }}" class="nav-link {% if request.endpoint == 'register' -%}active{%- endif %}">Register</a>
+                {% endif %}
+                {% if current_user.is_authenticated and current_user.is_staff %}
+                    <a href="{{ url_for('auth_app.login-as') }}" class="nav-link {% if request.endpoint == 'login-as' -%}active{%- endif %}" >Login As</a>
                 {% endif %}
             </div>
         </div>
