@@ -1,30 +1,53 @@
-from flask import Blueprint, render_template
-from flask_login import login_required
-
+from flask import Blueprint, render_template, request, current_app, redirect, url_for
+from flask_login import login_required, current_user
+from sqlalchemy.exc import IntegrityError
 from werkzeug.exceptions import NotFound
+
+from blog.models.database import db
+from blog.models import Author, Article
+from blog.forms.article import CreateArticleForm
 
 
 articles_app = Blueprint('articles_app', __name__)
 
-ARTICLES = {
-        'Flask': 'Flask is a micro web framework written in Python. It is classified as a microframework because it does not require particular tools or libraries. It has no database abstraction layer, form validation, or any other components where pre-existing third-party libraries provide common functions. However, Flask supports extensions that can add application features as if they were implemented in Flask itself. Extensions exist for object-relational mappers, form validation, upload handling, various open authentication technologies and several common framework related tools.', 
-        'Django': 'Django is a free and open-source, Python-based web framework that follows the model–template–views (MTV) architectural pattern. It is maintained by the Django Software Foundation (DSF), an independent organization established in the US as a 501(c)(3) non-profit.', 
-        'JSON:API': 'A web API is an application programming interface (API) for either a web server or a web browser. As a web development concept, it can be related to a web application\'s client side (including any web frameworks being used). A server-side web API consists of one or more publicly exposed endpoints to a defined request–response message system, typically expressed in JSON or XML by means of an HTTP-based web server. A server API (SAPI) is not considered a server-side web API, unless it is publicly accessible by a remote web application.'
-    }
-
 
 @articles_app.route('/', endpoint='list')
 def articles_list():
-    return render_template('articles/list.html', articles=ARTICLES)
+    articles = Article.query.all()
+    return render_template('articles/list.html', articles=articles)
 
 
-@articles_app.route('/<article_name>/', endpoint='details')
+@articles_app.route('/<int:article_id>/', endpoint='details')
 @login_required
-def article_details(article_name):
-    try:
-        article_text = ARTICLES[article_name]
-    except KeyError:
-        raise NotFound(f'User #{article_name} doesn\'t exist!')
-    return render_template('articles/details.html', article_name=article_name, article_text=article_text)
+def article_details(article_id):
+    article = Article.query.filter_by(id=article_id).one_or_none()
+    if article is None:
+        raise NotFound
+    return render_template('articles/details.html', article=article)
 
 
+@articles_app.route('/create/', methods=['GET', 'POST'], endpoint='create')
+@login_required
+def create_article():
+    error = None
+    form = CreateArticleForm(request.form)
+    if request.method == 'POST' and form.validate_on_submit():
+        article = Article(title=form.title.data.strip(), text=form.text.data)
+        db.session.add(article)
+        if current_user.author:
+            article.author = current_user.author
+        else:
+            author = Author(user_id=current_user.id)
+            db.session.add(author)
+            db.session.flush()
+            article.author = current_user.author
+
+        try:
+            db.session.commit()
+        except IntegrityError:
+            current_app.logger.exception("Could not create a new article!")
+            error = "Could not create a new article!"
+        else:
+            return redirect(url_for('articles_app.details', article_id=article.id))
+    
+    return render_template('articles/create.html', form=form, error=error)
