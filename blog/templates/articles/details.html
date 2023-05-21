@@ -4,6 +4,14 @@
 
 {% block body %}
     <h1>{{ article.title }}</h1>
+    {% if article.tags %}
+        <div>Tags:</div>
+        <ul>
+            {% for tag in article.tags %}
+                <li>{{ tag.name }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
     <div>
         <p>
             {{ article.text }}
