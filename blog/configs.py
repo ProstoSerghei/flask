@@ -8,6 +8,7 @@ class BaseConfig(object):
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SECRET_KEY = "abcdefg123456abcdefg123456"
     WTF_CRF_ENABLED = True
+    FLASK_ADMIN_SWATCH = 'cosmo'
 
 
 class DevConfig(BaseConfig):

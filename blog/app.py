@@ -10,6 +10,7 @@ from blog.views.authors import authors_app
 from blog.views.auth import login_manager, auth_app
 from blog.models.database import db
 from blog.security import flask_bcrypt
+from blog.admin import admin
 
 
 app = Flask(__name__)
@@ -31,6 +32,7 @@ login_manager.init_app(app)
 
 flask_bcrypt.init_app(app)
 
+admin.init_app(app)
 
 @app.route('/')
 def index():
