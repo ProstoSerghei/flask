@@ -1,4 +1,5 @@
 from flask_combo_jsonapi import ResourceDetail, ResourceList
+from flask_login import login_required
 
 from blog.schemas import TagSchema
 from blog.models.database import db
@@ -12,6 +13,8 @@ class TagList(ResourceList):
         'session': db.session,
         'model': Tag,
     }
+    methods = ['GET']
+    decorators = (login_required, )
 
 class TagDetail(ResourceDetail):
     schema = TagSchema
@@ -19,3 +22,5 @@ class TagDetail(ResourceDetail):
         'session': db.session,
         'model': Tag
     }
+    methods = ['GET']
+    decorators = (login_required, )
