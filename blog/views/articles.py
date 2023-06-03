@@ -44,12 +44,12 @@ def create_article():
             for tag in selected_tags:
                 article.tags.append(tag)
         if current_user.author:
-            article.author = current_user.author.id
+            article.author = current_user.author
         else:
             author = Author(user_id=current_user.id)
             db.session.add(author)
             db.session.flush()
-            article.author = current_user.author.id
+            article.author = author
 
         try:
             db.session.commit()
