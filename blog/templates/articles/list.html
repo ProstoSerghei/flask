@@ -22,7 +22,9 @@ block body %}
   async function loadArticles() {
     articlesList.innerHTML =
       '<div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div>';
-    let response = await fetch("http://localhost:5000/api/article");
+    let response = await fetch(
+      "https://flask-app-test-dctx.onrender.com/api/article"
+    );
     let jsonData = await response.json();
 
     addArticles(jsonData.data);
