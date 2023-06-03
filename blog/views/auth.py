@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, curren
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from sqlalchemy.exc import IntegrityError
 from werkzeug.exceptions import NotFound
+from flask_combo_jsonapi.exceptions import AccessDenied
 
 from blog.models.database import db
 from blog.models import User
@@ -21,6 +22,8 @@ def load_user(user_id):
 
 @login_manager.unauthorized_handler
 def unauthorized():
+    if '/api/' in request.path:
+        return 'no access'
     return redirect(url_for('auth_app.login'))
 
 
