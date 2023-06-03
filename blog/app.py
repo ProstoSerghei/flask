@@ -17,7 +17,7 @@ from blog.api import init_api
 app = Flask(__name__)
 migrate = Migrate(app, db, compare_type=True)
 
-app.config.from_object('blog.configs.DevConfig')
+app.config.from_object('blog.configs.ProductionConfig')
 
 app.register_blueprint(users_app, url_prefix='/users')
 
